@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>For You</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,600&family=Montserrat:wght@300;400&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        :root {
+            --bg-pitch-black: #030303;
+            --gold: #d4af37;
+            --rose-gold: #b76e79;
+        }
+
+        body, html {
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            overflow: hidden; background-color: var(--bg-pitch-black);
+            font-family: 'Montserrat', sans-serif;
+            display: flex; justify-content: center; align-items: center;
+        }
+
+        /* The Ambient Spotlight Background */
+        #ambient-bg {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at 50% 60%, #4a2c2c 0%, #140d0b 70%, #030303 100%);
+            opacity: 0; transition: opacity 3s ease-in-out; z-index: 0;
+        }
+
+        /* Sleek Switch */
+        #switch-wrapper {
+            position: absolute; z-index: 1000;
+            display: flex; flex-direction: column; align-items: center;
+            transition: opacity 1.5s ease;
+        }
+        
+        .sleek-switch {
+            width: 40px; height: 80px; background: #111;
+            border-radius: 40px; border: 1px solid #333;
+            box-shadow: inset 0 0 10px #000, 0 5px 15px rgba(0,0,0,0.8);
+            position: relative; cursor: pointer; transition: border-color 0.3s;
+        }
+
+        .switch-knob {
+            width: 32px; height: 32px; background: linear-gradient(145deg, #444, #222);
+            border-radius: 50%; position: absolute; bottom: 4px; left: 3px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.5);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        #switch-wrapper p {
+            color: #555; font-size: 0.8rem; letter-spacing: 4px;
+            margin-top: 20px; text-transform: uppercase; font-weight: 300; z-index: 1;
+        }
+
+        /* 1. Elegant Top Decorations */
+        #elegant-decorations {
+            position: absolute; top: -100px; left: 0; width: 100%; height: 150px;
+            opacity: 0; transition: top 3s ease, opacity 3s ease; z-index: 5;
+            pointer-events: none;
+        }
+
+        /* 2. Jumping Party Crowd (Abstract Silhouettes) */
+        #party-crowd {
+            position: absolute; bottom: 50px; width: 100%;
+            display: flex; justify-content: center; gap: 40px;
+            opacity: 0; transition: opacity 2s ease 1s; z-index: 2;
+        }
+
+        .silhouette {
+            width: 50px; height: 120px;
+            transform-origin: bottom;
+        }
+
+        /* Staggered Jumping Animations */
+        .jump-1 { animation: partyJump 0.6s infinite alternate ease-in-out; animation-delay: 0.1s; }
+        .jump-2 { animation: partyJump 0.7s infinite alternate ease-in-out; animation-delay: 0.4s; }
+        .jump-3 { animation: partyJump 0.5s infinite alternate ease-in-out; animation-delay: 0.2s; }
+        .jump-4 { animation: partyJump 0.8s infinite alternate ease-in-out; animation-delay: 0.6s; }
+
+        @keyframes partyJump {
+            0% { transform: translateY(0) scaleY(0.95); }
+            100% { transform: translateY(-35px) scaleY(1.05); }
+        }
+
+        /* Scene & Cake */
+        #scene {
+            position: relative; display: none; flex-direction: column; 
+            align-items: center; justify-content: center;
+            width: 100%; height: 100%; z-index: 10;
+        }
+
+        #elegant-cake {
+            display: flex; flex-direction: column; align-items: center;
+            opacity: 0; transition: opacity 2s ease-in-out; margin-top: 60px;
+        }
+
+        .cake-top {
+            width: 130px; height: 60px;
+            background: linear-gradient(145deg, #fff0f3, #ffccd5);
+            border-radius: 12px 12px 0 0;
+            box-shadow: inset 0 -5px 15px rgba(0,0,0,0.05); z-index: 2;
+        }
+
+        .cake-bottom {
+            width: 180px; height: 70px;
+            background: linear-gradient(145deg, #fff0f3, #ffccd5);
+            border-radius: 12px 12px 0 0;
+            box-shadow: inset 0 -5px 15px rgba(0,0,0,0.05), 0 -10px 15px rgba(0,0,0,0.1);
+            z-index: 1; margin-top: -10px;
+        }
+
+        .cake-stand {
+            width: 220px; height: 12px;
+            background: linear-gradient(to right, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
+            border-radius: 10px; box-shadow: 0 15px 30px rgba(0,0,0,0.8);
+        }
+
+        /* Candles */
+        .candle-container {
+            display: flex; gap: 12px; justify-content: center;
+            position: absolute; top: -35px; width: 100%; z-index: 10;
+        }
+
+        .elegant-candle {
+            width: 8px; height: 45px;
+            background: linear-gradient(to right, #e0e0e0, #ffffff, #d0d0d0);
+            border-radius: 4px; position: relative; opacity: 0; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .flame {
+            position: absolute; top: -18px; left: 50%;
+            transform: translateX(-50%); width: 10px; height: 18px;
+            background: #ffcc00; border-radius: 50% 50% 20% 20%;
+            box-shadow: 0 0 20px 5px rgba(255, 170, 0, 0.6), 0 0 40px 10px rgba(255, 100, 0, 0.3);
+            animation: elegantFlicker 2s infinite ease-in-out alternate; opacity: 0;
+        }
+
+        @keyframes elegantFlicker {
+            0% { transform: translateX(-50%) scale(0.95); opacity: 0.9; }
+            100% { transform: translateX(-50%) scale(1.05); opacity: 1; }
+        }
+
+        @keyframes smoothGlide {
+            0% { transform: translate(-50vw, 100px) rotate(-5deg); opacity: 0; }
+            20% { opacity: 1; }
+            80% { transform: translate(0px, -30px) scaleY(1.05) rotate(0deg); }
+            100% { transform: translate(0px, 0px) scaleY(1) rotate(0deg); opacity: 1; }
+        }
+
+        /* The Beagle Emoji */
+        #beagle-wrapper {
+            position: fixed; bottom: 30px; left: -250px;
+            display: flex; flex-direction: column; align-items: center;
+            z-index: 100; opacity: 0;
+        }
+
+        .walk-animation { animation: dogWalkIn 4s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
+
+        @keyframes dogWalkIn {
+            0% { left: -250px; opacity: 0; transform: translateY(0); }
+            10% { opacity: 1; }
+            20% { transform: translateY(-5px); }
+            40% { transform: translateY(0); }
+            60% { transform: translateY(-5px); }
+            80% { transform: translateY(0); }
+            100% { left: 50%; transform: translateX(-50%) translateY(0); opacity: 1; }
+        }
+
+        .classy-bubble {
+            background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 30px; padding: 15px 30px; color: var(--rose-gold);
+            font-family: 'Playfair Display', serif; font-size: 1.8rem; font-style: italic;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); margin-bottom: 5px; position: relative;
+            opacity: 0; transition: opacity 2s ease 1s; white-space: nowrap;
+        }
+
+        .classy-bubble::after {
+            content: ''; position: absolute; bottom: -10px; left: 50%;
+            transform: translateX(-50%); border-width: 10px 10px 0; border-style: solid;
+            border-color: rgba(255, 255, 255, 0.2) transparent transparent transparent;
+        }
+
+        .dog-sticker { font-size: 70px; filter: drop-shadow(0 15px 15px rgba(0,0,0,0.6)); margin-top: -5px; }
+
+        /* Trigger Classes */
+        .show-element { opacity: 1 !important; }
+        .drop-decorations { top: 0 !important; opacity: 1 !important; }
+
+    </style>
+</head>
+<body>
+
+    <div id="ambient-bg"></div>
+
+    <div id="elegant-decorations">
+        <svg viewBox="0 0 100 20" preserveAspectRatio="none" style="width:100%; height:100%;">
+            <path d="M0,0 Q12.5,20 25,0 T50,0 T75,0 T100,0" fill="none" stroke="#d4af37" stroke-width="0.3" opacity="0.8"/>
+            <path d="M0,5 Q12.5,25 25,5 T50,5 T75,5 T100,5" fill="none" stroke="#b76e79" stroke-width="0.2" opacity="0.6"/>
+            <polygon points="12.5,8 13.5,12 17.5,13 13.5,14 12.5,18 11.5,14 7.5,13 11.5,12" fill="#d4af37"/>
+            <polygon points="37.5,8 38.5,12 42.5,13 38.5,14 37.5,18 36.5,14 32.5,13 36.5,12" fill="#d4af37"/>
+            <polygon points="62.5,8 63.5,12 67.5,13 63.5,14 62.5,18 61.5,14 57.5,13 61.5,12" fill="#d4af37"/>
+            <polygon points="87.5,8 88.5,12 92.5,13 88.5,14 87.5,18 86.5,14 82.5,13 86.5,12" fill="#d4af37"/>
+        </svg>
+    </div>
+
+    <div id="party-crowd">
+        <svg class="silhouette jump-1" viewBox="0 0 50 120">
+            <circle cx="25" cy="20" r="12" fill="#b76e79" opacity="0.7"/>
+            <path d="M 25 35 Q 10 35 15 80 L 35 80 Q 40 35 25 35 Z" fill="#b76e79" opacity="0.7"/>
+            <path d="M 15 45 Q 0 30 5 10" fill="none" stroke="#b76e79" stroke-width="5" stroke-linecap="round" opacity="0.7"/>
+        </svg>
+        <svg class="silhouette jump-2" viewBox="0 0 50 120">
+            <circle cx="25" cy="15" r="10" fill="#d4af37" opacity="0.6"/>
+            <path d="M 25 30 Q 15 30 20 85 L 30 85 Q 35 30 25 30 Z" fill="#d4af37" opacity="0.6"/>
+            <path d="M 35 40 Q 50 20 40 5" fill="none" stroke="#d4af37" stroke-width="4" stroke-linecap="round" opacity="0.6"/>
+        </svg>
+        <svg class="silhouette jump-3" viewBox="0 0 50 120">
+            <circle cx="25" cy="22" r="14" fill="#e5c158" opacity="0.5"/>
+            <path d="M 25 40 Q 5 40 10 90 L 40 90 Q 45 40 25 40 Z" fill="#e5c158" opacity="0.5"/>
+            <path d="M 10 50 Q -5 20 10 0" fill="none" stroke="#e5c158" stroke-width="6" stroke-linecap="round" opacity="0.5"/>
+            <path d="M 40 50 Q 55 20 40 0" fill="none" stroke="#e5c158" stroke-width="6" stroke-linecap="round" opacity="0.5"/>
+        </svg>
+        <svg class="silhouette jump-4" viewBox="0 0 50 120">
+            <circle cx="25" cy="18" r="11" fill="#b76e79" opacity="0.8"/>
+            <path d="M 25 32 Q 12 32 18 80 L 32 80 Q 38 32 25 32 Z" fill="#b76e79" opacity="0.8"/>
+            <path d="M 32 42 Q 45 30 35 10" fill="none" stroke="#b76e79" stroke-width="4" stroke-linecap="round" opacity="0.8"/>
+        </svg>
+    </div>
+
+    <div id="switch-wrapper">
+        <div class="sleek-switch" id="mainSwitch"><div class="switch-knob" id="knob"></div></div>
+        <p>Ignite</p>
+    </div>
+
+    <div id="scene">
+        <div style="position: relative;">
+            <div class="candle-container">
+                <div class="elegant-candle"><div class="flame"></div></div>
+                <div class="elegant-candle"><div class="flame"></div></div>
+                <div class="elegant-candle"><div class="flame"></div></div>
+                <div class="elegant-candle"><div class="flame"></div></div>
+                <div class="elegant-candle"><div class="flame"></div></div>
+                <div class="elegant-candle"><div class="flame"></div></div>
+                <div class="elegant-candle"><div class="flame"></div></div>
+            </div>
+            <div id="elegant-cake">
+                <div class="cake-top"></div>
+                <div class="cake-bottom"></div>
+                <div class="cake-stand"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="beagle-wrapper">
+        <div class="classy-bubble" id="beagleMessage">Happy birthday chellokutty ❤️</div>
+        <div class="dog-sticker">🐶</div>
+    </div>
+
+    <audio id="hbdMusic" loop>
+        <source src="https://www.chosic.com/wp-content/uploads/2021/04/Happy-Birthday-Toy-Piano.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        const switchWrapper = document.getElementById('switch-wrapper');
+        const mainSwitch = document.getElementById('mainSwitch');
+        const knob = document.getElementById('knob');
+        const scene = document.getElementById('scene');
+        const cake = document.getElementById('elegant-cake');
+        const ambientBg = document.getElementById('ambient-bg');
+        const elegantDecorations = document.getElementById('elegant-decorations');
+        const partyCrowd = document.getElementById('party-crowd');
+        const beagleWrapper = document.getElementById('beagle-wrapper');
+        const beagleMessage = document.getElementById('beagleMessage');
+        const hbdMusic = document.getElementById('hbdMusic');
+        const candles = document.querySelectorAll('.elegant-candle');
+        
+        let litCount = 0;
+
+        mainSwitch.addEventListener('click', () => {
+            knob.style.transform = 'translateY(-40px)';
+            knob.style.background = '#d4af37'; mainSwitch.style.borderColor = '#d4af37';
+
+            hbdMusic.play().then(() => { hbdMusic.pause(); hbdMusic.currentTime = 0; }).catch(e => console.log("Audio ready"));
+
+            setTimeout(() => {
+                switchWrapper.style.opacity = '0';
+                setTimeout(() => {
+                    switchWrapper.style.display = 'none';
+                    scene.style.display = 'flex';
+                    startCinematicFlight();
+                }, 1500);
+            }, 800);
+        });
+
+        function startCinematicFlight() {
+            candles.forEach((candle, index) => {
+                setTimeout(() => {
+                    candle.querySelector('.flame').style.opacity = '1';
+                    candle.style.animation = `smoothGlide 3s cubic-bezier(0.25, 1, 0.5, 1) forwards`;
+                    
+                    setTimeout(() => {
+                        litCount++;
+                        cake.style.opacity = (litCount / 7);
+
+                        if (litCount === 7) {
+                            setTimeout(triggerClassyFinale, 1000);
+                        }
+                    }, 3000); 
+                }, index * 1200); 
+            });
+        }
+
+        function triggerClassyFinale() {
+            // Light up the ambient background
+            ambientBg.classList.add('show-element');
+            
+            // Drop in the top decorations
+            elegantDecorations.classList.add('drop-decorations');
+
+            // Fade in the jumping crowd behind the cake
+            partyCrowd.classList.add('show-element');
+
+            // Play music & walk the dog in
+            hbdMusic.play();
+            beagleWrapper.classList.add('walk-animation');
+
+            setTimeout(() => {
+                beagleMessage.classList.add('show-element');
+                fireMassiveConfetti();
+            }, 4000); 
+        }
+
+        function fireMassiveConfetti() {
+            var duration = 10 * 1000;
+            var animationEnd = Date.now() + duration;
+            var defaults = { 
+                startVelocity: 35, spread: 120, ticks: 250, 
+                colors: ['#d4af37', '#b76e79', '#ffffff', '#e5c158', '#ffccd5'] 
+            };
+
+            var interval = setInterval(function() {
+                var timeLeft = animationEnd - Date.now();
+                if (timeLeft <= 0) return clearInterval(interval);
+                
+                var particleCount = 60 * (timeLeft / duration);
+                // Fire heavily from top left and right corners
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: Math.random() * 0.2, y: -0.1 } }));
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: 0.8 + Math.random() * 0.2, y: -0.1 } }));
+            }, 200);
+        }
+    </script>
+</body>
+</html>
